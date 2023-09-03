@@ -3,7 +3,7 @@ const {Schema} =mongoose
 
 const Pet= mongoose.model(
     'Pet',
-    new Schema({
+    new mongoose.Schema({
     name:{
         type: String,
         required: true

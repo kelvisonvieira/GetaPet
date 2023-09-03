@@ -1,9 +1,9 @@
 const mongoose = require('../db/conn')
-const {Schema} =mongoose
+const { Schema } = mongoose
 
 const User = mongoose.model(
     'User',
-    new Schema({
+    new mongoose.Schema({
         name:{
             type: String,
             required:true
@@ -23,7 +23,7 @@ const User = mongoose.model(
         phone: {
             type: String,
             required: true
-        },
+        }
         
     },
     {timestamps:true},
