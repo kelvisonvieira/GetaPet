@@ -5,6 +5,7 @@ try{
         useNewUrlParser:true,
         useUnifiedTopology: true,
     })
+    console.log('conectado com o banco')
 }catch (err){
     console.log(err)
 }

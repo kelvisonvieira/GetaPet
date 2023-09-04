@@ -3,10 +3,7 @@ const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-// Rota para listar todos os usuarios
-router.get("/", userController.getAllUsers);
-
 // Rota para criar uma novo usuario
-router.post("/register", userController.createUser);
+router.post("/register", userController.register);
 
 module.exports = router;
