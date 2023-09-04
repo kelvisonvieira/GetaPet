@@ -11,6 +11,7 @@ const createUser = async (req, res) => {
       return res.status(400).send({ error: "Usuario ja existe" });
     }
     const user = await User.create(req.body);
+    user.password = undefined; // Nao mostra a senha
     console.log(`Usuário cadastrado com sucesso: ${email}`); // Dica: você pode usar a biblioteca winston para registrar e imprimir o log
     return res.send({ user });
   } catch (err) {
