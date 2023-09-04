@@ -7,12 +7,14 @@ const createUser = async (req, res) => {
   try {
     // E-mail é unico para cada usuário
     if (await User.findOne({ email })) {
+      console.log(`Usuario ja existe: ${email}`);
       return res.status(400).send({ error: "Usuario ja existe" });
     }
     const user = await User.create(req.body);
-    console.log(`Usuário cadastrodo com sucesso: ${email}`); // Dica: você pode usar a biblioteca winston para registrar e imprimir o log
+    console.log(`Usuário cadastrado com sucesso: ${email}`); // Dica: você pode usar a biblioteca winston para registrar e imprimir o log
     return res.send({ user });
   } catch (err) {
+    console.error(`Falha ao registrar usuario`);
     return res.status(400).send({ error: "Falha ao registrar usuario" });
   }
 };
