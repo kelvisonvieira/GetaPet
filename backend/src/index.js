@@ -1,5 +1,6 @@
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
+const petRoutes = require('./routes/petRoutes')
 
 const port = 3004;
 
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 
 // Roteamento de usuario
 app.use("/users", userRoutes);
+app.use("/pets", petRoutes);
 
 //public folder for images
 app.use(express.static("public"));

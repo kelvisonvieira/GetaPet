@@ -2,9 +2,12 @@ const express= require('express')
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+//helpers
 const createUserToken = require("../../helpers/create-user-token");
 const getToken = require('../../helpers/get-token');
 const getUserByToken = require('../../helpers/get-user-by-token');
+const e = require('express');
 
 module.exports = class userController {
   static async register(req, res) {
@@ -97,13 +100,16 @@ module.exports = class userController {
     await createUserToken(userExists, req, res);
 
   }
+
+  //checkUser
   static async checkUser(req, res) {
     let currentUser;
+  
+    
     if (req.headers.authorization) {
-      const token = getToken(req);
-      const decoded = jwt.verify(token, "nossosecret");
-      currentUser = await User.findById(decoded.id);
-      currentUser.password = undefined;
+     const token = getToken(req)
+     const decoded = jwt.verify(token,'nossosecret')
+     currentUser = await User.findOne({id: decoded._id})
     } else {
       currentUser = null;
     }
@@ -115,7 +121,7 @@ module.exports = class userController {
     const user = await User.findById(id).select('-password');
     console.log(id);
 
-    if (!user) {
+    if (user == null) {
       res.status(422).json({
         message: 'Usuário não encontrado',
       });
@@ -124,71 +130,63 @@ module.exports = class userController {
 
     res.status(200).json({ user });
   }
-
+  
   static async editUser(req, res) {
-    const token = getToken(req);
-    const user = getUserByToken(token);
-    const { name, email, password, confirmpassword } = req.body;
-    let image = '';
-    if(req.file){
-      user.image = req.filename
-    }
-    //validations
-    if (!name) {
-      res.status(422).json({ message: 'O nome é obrigatorio' });
-      return;
-    }
-    if (!email) {
-      res.status(422).json({ message: 'O email é obrigatorio' });
-      return;
-    }
+   const id = req.params.id
+
     //check if user exists
-    const userExist = await User.findOne({ email: email });
-    if (user.email !== email && userExist) {
-      res.status(422).json({
-        message: 'Usuário não encontrado!'
-      });
-      return;
-    }
-    user.email = email;
-    if (!phone) {
-      res.status(422).json({ message: 'O telefone é obrigatorio' });
-      return;
-    }
-    user.phone = phone;
-    if (!password) {
-      res.status(422).json({ message: 'A senha é obrigatoria' });
-      return;
-    }
-    if (!confirmpassword) {
-      res.status(422).json({ message: 'A confirmação de senha é obrigatoria' });
-      return;
-    }
-    if (password !== confirmpassword) {
-      res.status(422).json({ message: 'Senhas estão diferentes' });
-    } else if (password === confirmpassword && password != null) {
-      //creating password
-      const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash(password, salt);
-      user.password = passwordHash;
-    }
+    const token =getToken(req)
+    const user = await getUserByToken(token)
 
-    try {
-      //returns user updated data
-      await User.findOneAndUpdate(
-        {_id: user._id},
-        {$set: user},
-        { new:true},
-      )
-      res.status(200).json({
-        message: 'usuário atualizado com sucesso!',
-      })   }
+   const { name,email, phone, password, confirmpassword } = req.body
+   let image = '' 
+
+  
+   
+
+   //validations
+   if (!name) {
+    res.status(422).json({ message: 'O nome é obrigatorio' });
+    return;
+  }
+  if (!email) {
+    res.status(422).json({ message: 'O email é obrigatorio' });
+    return;
+  }
+  //check if email has already taken
+  const userExists = await User.findOne({email:email})
+  if(user.email !==email && userExists){
+    res.status(422).json({
+      message: 'Email  ja cadastrado',
+    })
+    return
+  }
+  user.email = email
+
+  if(!user){
+   res.status(422).json({
+     message: 'Usuário não encontrado!',
+   })
+   return
+  
+ }
+  if (!phone) {
+    res.status(422).json({ message: 'O telefone é obrigatorio' });
+    return;
+  }
+  if (!password) {
+    res.status(422).json({ message: 'A senha é obrigatoria' });
+    return;
+  }
+  if (!confirmpassword) {
+    res.status(422).json({ message: 'A confirmação de senha é obrigatoria' });
+    return;
+  }
+  if (password !== confirmpassword) {
+    res.status(422).json({ message: 'Senhas estão diferentes' });
+  }
 
 
-
-    catch (err){
-     res.status(500).json({ message: err})
-    }
 
 
 
