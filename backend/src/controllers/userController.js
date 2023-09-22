@@ -117,7 +117,7 @@ module.exports = class userController {
 
   }
   static async getUserById(req, res) {
-    const id = req.params.id;
+    const id = req.params.id.trim();
     const user = await User.findById(id).select('-password');
     console.log(id);
 
@@ -136,7 +136,12 @@ module.exports = class userController {
 
     //check if user exists
     const token =getToken(req)
+
+   
     const user = await getUserByToken(token)
+
+    console.log(id)
+    
 
    const { name,email, phone, password, confirmpassword } = req.body
    let image = '' 
@@ -149,6 +154,7 @@ module.exports = class userController {
     res.status(422).json({ message: 'O nome é obrigatorio' });
     return;
   }
+   user.name = name
   if (!email) {
     res.status(422).json({ message: 'O email é obrigatorio' });
     return;
@@ -174,21 +180,34 @@ module.exports = class userController {
     res.status(422).json({ message: 'O telefone é obrigatorio' });
     return;
   }
-  if (!password) {
-    res.status(422).json({ message: 'A senha é obrigatoria' });
-    return;
-  }
-  if (!confirmpassword) {
-    res.status(422).json({ message: 'A confirmação de senha é obrigatoria' });
-    return;
-  }
-  if (password !== confirmpassword) {
-    res.status(422).json({ message: 'Senhas estão diferentes' });
-  }
+ user.phone = phone
 
+if(password != confirmpassword){
+  res.status(422).json({ message: 'As senhas não conferem!' });
+  return;
+   }else if(password === confirmpassword && password != null){
 
+     //create a password
+     const salt = await bcrypt.genSalt(12);
+     const passwordHash = await bcrypt.hash(password, salt);
+     user.password = passwordHash
 
-
+   }
+  
+  
+  try{
+    const updateUser =await User.findOneAndUpdate(
+      {_id:id},
+      {$set: user},
+       {new:true},
+    )
+     res.status(200).json({ 
+       message: 'Usuário atualizado com sucesso!'      
+     })
+    
+    }catch(error){
+      res.status(500).json({message: error})
+    }
 
   }
 
