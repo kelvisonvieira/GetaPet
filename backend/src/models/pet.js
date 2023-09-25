@@ -19,11 +19,12 @@ const Pet= mongoose.model(
     },
     color:{
         type: String,
-        require: true
+        required: true
     },
     images:{
-        type: String,
+        type: Array,
         required: true
+        
     },
     available:{
         type: Boolean,

@@ -144,8 +144,10 @@ module.exports = class userController {
     
 
    const { name,email, phone, password, confirmpassword } = req.body
-   let image = '' 
-
+ 
+   if(req.file){
+    user.image = req.file.filename
+   }
   
    
 
@@ -159,9 +161,12 @@ module.exports = class userController {
     res.status(422).json({ message: 'O email é obrigatorio' });
     return;
   }
+  
+ 
   //check if email has already taken
   const userExists = await User.findOne({email:email})
-  if(user.email !==email && userExists){
+  
+  if(user.email !=email && userExists){
     res.status(422).json({
       message: 'Email  ja cadastrado',
     })
