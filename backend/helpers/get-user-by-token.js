@@ -13,7 +13,7 @@ const getUserByToken = async(token)=>{
     const userName =  decoded.id.trim()
     console.log(userName)
     const user = await User.findOne({ _id: userName})
-    console.log(user)
+    
     return user
 }
 module.exports =getUserByToken
